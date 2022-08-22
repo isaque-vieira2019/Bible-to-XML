@@ -52,6 +52,22 @@ func writeConvertFile(txt []string, nameFile string) {
 
 	defer f.Close()
 
+	cabecalho := `<?xml version="1.0" encoding="utf-8"?>
+	<XMLBIBLE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="zef2005.xsd" version="2.0.1.18" status="v" biblename=" KJV Fiel 1611 " revision="0" type="x-bible">
+		<INFORMATION>
+				<subject>holy bible</subject>
+				<format>Zefania XML Bible Markup Language</format>
+				<date>2022-08-21</date>
+				<title>Portuguese King James Bible 1611)</title>
+				<description>The Translate from King James Bible 1611</description>
+				<language>POR</language>
+				<creator>MNCS</creator>
+				<identifier>KJV</identifier>
+				<publisher>MNCS</publisher>
+		</INFORMATION>` + "\n"
+
+	f.WriteString(cabecalho)
+
 	var livroAtual = ""
 	var livroCount = 0
 	var capAtual = ""
@@ -71,7 +87,7 @@ func writeConvertFile(txt []string, nameFile string) {
 			livroAtual = livro
 			livroCount++
 			capAtual = ""
-			text += "\t\t" + `<BIBLEBOOK bnumber="` + strconv.Itoa(livroCount) + `" bname="- ` + livroAtual + `">` + "\n"
+			text += "\t\t" + `<BIBLEBOOK bnumber="` + strconv.Itoa(livroCount) + `" bname="` + livroAtual + `">` + "\n"
 			f.WriteString(text)
 		}
 
@@ -93,9 +109,16 @@ func writeConvertFile(txt []string, nameFile string) {
 		versCount++
 		vers, _, _ := strings.Cut(text2, "@")
 
-		versText := "\t\t\t\t\t\t" + `<VERS vnumber="` + strconv.Itoa(versCount) + `, KJV Fiel 1611">`
+		versText := "\t\t\t\t\t\t" + `<VERS vnumber="` + strconv.Itoa(versCount) + `">`
 		versText += vers
-		versText += " </VERS>\n"
+		versText += "\n\n- " + livroAtual + capAtual + `:` + strconv.Itoa(versCount) + ", KJV Fiel 1611</VERS>\n"
 		f.WriteString(versText)
 	}
+
+	rodape := `
+		</CHAPTER>
+	</BIBLEBOOK>
+</XMLBIBLE>`
+
+	f.WriteString(rodape)
 }
